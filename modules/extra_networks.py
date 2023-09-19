@@ -136,6 +136,8 @@ def activate(p, extra_network_data):
             activated.append(extra_network)
         except Exception as e:
             errors.display(e, f"activating extra network {extra_network.name} with arguments {extra_network_args}")
+            if 'LoraNotFound' in str(e):
+                raise e
 
     for extra_network_name, extra_network in extra_network_registry.items():
         if extra_network in activated:

@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILDER_IMAGE: ${DOCKER_IMAGE}-local
+        TZ: ${TZ}
+        CONTROLNET_MODEL: ${CONTROLNET_MODEL}
+        USERNAME: ${DOCKER_USERNAME:-hoge}
+        COMMANDLINE_ARGS: ${COMMANDLINE_ARGS}
+        USER_UID: 9999
+        USER_GID: 9999
+        venv_dir: ${venv_dir}
+        GCS_BUCKET_NAME: ${GCS_BUCKET_NAME}
+        GCS_WEIGHT_ROOT_PATH: ${GCS_WEIGHT_ROOT_PATH}
+        GCS_WEIGHT_NAME: ${GCS_WEIGHT_NAME}
+    image: ${DOCKER_IMAGE}
+    container_name: ${DOCKER_IMAGE}-api
+    shm_size: '12gb'
+    user: ${DOCKER_USERNAME}
+    ports:
+      - "${PORT:-7860}:${PORT:-7860}"
+    volumes:
+      - ./outputs:/outputs
+      - ./log:/log
+      - ./keys:/home/${DOCKER_USERNAME}/${API_DIR}/keys
+    env_file:
+      - .env.local
+    deploy:
+     resources:
+       reservations:
+         devices:
+           - driver: nvidia
+             capabilities: [gpu]
+    command: ./webui.sh
+    networks:
+      - ${DOCKER_NETWORK}
+networks:
+  sd-webui-for-ml-local:
+     external: true

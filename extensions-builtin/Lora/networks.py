@@ -15,6 +15,7 @@ import torch
 from typing import Union
 
 from modules import shared, devices, sd_models, errors, scripts, sd_hijack
+from gcs import download_weight
 
 module_types = [
     network_lora.ModuleTypeLora(),
@@ -211,6 +212,10 @@ def purge_networks_from_memory():
 
 def load_networks(names, te_multipliers=None, unet_multipliers=None, dyn_dims=None):
     already_loaded = {}
+
+    for name in names:
+        if name not in available_networks:
+            download_weight(name, shared.cmd_opts.lora_dir)
 
     for net in loaded_networks:
         if net.name in names:

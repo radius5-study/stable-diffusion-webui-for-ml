@@ -41,6 +41,9 @@ def main():
     if args.test_server:
         configure_for_tests()
 
+    if args.nolaunch:
+        exit(0)
+
     start()
 
 
