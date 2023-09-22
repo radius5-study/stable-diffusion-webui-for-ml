@@ -30,6 +30,11 @@ def api_only():
     initialize.initialize()
 
     app = FastAPI()
+
+    def health():
+        return {"message": "ok"}
+    app.add_api_route("/health", health, methods=["GET"])
+
     initialize_util.setup_middleware(app)
     api = create_api(app)
 

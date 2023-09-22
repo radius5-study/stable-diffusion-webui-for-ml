@@ -6,15 +6,13 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        BUILDER_IMAGE: ${DOCKER_IMAGE}-local
+        BUILDER_IMAGE: ${BUILDER_DOCKER_IMAGE}
         TZ: ${TZ}
-        CONTROLNET_MODEL: ${CONTROLNET_MODEL}
         USERNAME: ${DOCKER_USERNAME:-hoge}
         COMMANDLINE_ARGS: ${COMMANDLINE_ARGS}
         USER_UID: 9999
         USER_GID: 9999
         venv_dir: ${venv_dir}
-        GCS_BUCKET_NAME: ${GCS_BUCKET_NAME}
         GCS_WEIGHT_ROOT_PATH: ${GCS_WEIGHT_ROOT_PATH}
         GCS_WEIGHT_NAME: ${GCS_WEIGHT_NAME}
     image: ${DOCKER_IMAGE}
@@ -27,8 +25,9 @@ services:
       - ./outputs:/outputs
       - ./log:/log
       - ./keys:/home/${DOCKER_USERNAME}/${API_DIR}/keys
-    env_file:
-      - .env.local
+    environment:
+      - GCS_BUCKET_NAME=${GCS_BUCKET_NAME}
+      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
     deploy:
      resources:
        reservations:

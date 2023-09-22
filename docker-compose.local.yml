@@ -7,7 +7,6 @@ services:
       dockerfile: local.Dockerfile
       args:
         TZ: ${TZ}
-        CONTROLNET_MODEL: ${CONTROLNET_MODEL}
         USERNAME: ${DOCKER_USERNAME:-hoge}
         BUILD_COMMANDLINE_ARGS: ${BUILD_COMMANDLINE_ARGS}
         COMMANDLINE_ARGS: ${COMMANDLINE_ARGS}

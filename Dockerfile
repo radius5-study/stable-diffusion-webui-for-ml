@@ -29,25 +29,24 @@ RUN \
         git \
     && apt-get autoremove -yq \
     && apt-get clean \
-    && pip install packaging google-cloud-storage \
     && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* /tmp/* \
     && groupadd --gid $USER_GID $USERNAME \
        && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME
 
+COPY --chown=$USERNAME:$USERNAME --from=builder /usr/local/lib/python3.10/dist-packages/ /usr/local/lib/python3.10/dist-packages
+# .local folder contains pip installed folder
+COPY --chown=$USERNAME:$USERNAME --from=builder /home/$USERNAME/.local/ /home/$USERNAME/.local
 COPY --chown=$USERNAME:$USERNAME cache/ /home/$USERNAME/.cache
 COPY --chown=$USERNAME:$USERNAME --from=builder /home/$USERNAME/stable-diffusion-webui/ /home/$USERNAME/stable-diffusion-webui
-COPY --chown=$USERNAME:$USERNAME --from=builder /home/$USERNAME/.local/ /home/$USERNAME/.local
 
 WORKDIR /home/$USERNAME/stable-diffusion-webui
 USER $USERNAME
 
 ARG COMMANDLINE_ARGS
 ARG venv_dir
-ARG GCS_BUCKET_NAME
 ARG GCS_WEIGHT_ROOT_PATH
 ARG GCS_WEIGHT_NAME
 ENV COMMANDLINE_ARGS=${COMMANDLINE_ARGS} \
     venv_dir=${venv_dir} \
-    GCS_BUCKET_NAME=${GCS_BUCKET_NAME} \
     GCS_WEIGHT_ROOT_PATH=${GCS_WEIGHT_ROOT_PATH} \
     GCS_WEIGHT_NAME=${GCS_WEIGHT_NAME}
