@@ -5,6 +5,8 @@ include .env.local
 BUILD_UID_LOCAL=$(shell id -u ${USER})
 BUILD_GID_LOCAL=$(shell id -g ${USER})
 LOCAL_HTTP_URL=http://localhost:${PORT}
+DEV_GCS_BUCKET_NAME=${GCS_BUCKET_NAME}-dev
+DEV_GOOGLE_APPLICATION_CREDENTIALS=$(shell echo ${GOOGLE_APPLICATION_CREDENTIALS} | sed 's/\.json/-dev\.json/')
 
 # local
 build_local:
@@ -16,18 +18,22 @@ build_local:
 			--build-arg USER_GID=${BUILD_GID_LOCAL}
 
 up_local:
-	docker compose -f docker-compose.local.yml up
+	GCS_BUCKET_NAME=${DEV_GCS_BUCKET_NAME} \
+		GOOGLE_APPLICATION_CREDENTIALS=${DEV_GOOGLE_APPLICATION_CREDENTIALS} \
+		docker compose -f docker-compose.local.yml up
 
 down_local:
 	docker compose -f docker-compose.local.yml down
 
 bash_local:
-	docker compose \
-		-f docker-compose.local.yml \
-		run \
-			--rm -p ${PORT}:${PORT} \
-			-v ${PWD}/keys:/home/${DOCKER_USERNAME}/${API_DIR}/keys \
-			api bash
+	GCS_BUCKET_NAME=${DEV_GCS_BUCKET_NAME} \
+		GOOGLE_APPLICATION_CREDENTIALS=${DEV_GOOGLE_APPLICATION_CREDENTIALS} \
+		docker compose \
+			-f docker-compose.local.yml \
+			run \
+				--rm -p ${PORT}:${PORT} \
+				-v ${PWD}/keys:/home/${DOCKER_USERNAME}/${API_DIR}/keys \
+				api bash
 
 curl_post:
 	curl -XPOST -H"Content-Type: application/json" \
@@ -44,8 +50,6 @@ build:
 down:
 	docker compose down
 
-DEV_GCS_BUCKET_NAME=${GCS_BUCKET_NAME}-dev
-DEV_GOOGLE_APPLICATION_CREDENTIALS=$(shell echo ${GOOGLE_APPLICATION_CREDENTIALS} | sed 's/\.json/-dev\.json/')
 ## dev
 up_dev:
 	GCS_BUCKET_NAME=${DEV_GCS_BUCKET_NAME} \
